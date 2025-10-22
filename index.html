@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Catatanku 3.0</title>
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+
+  <style>
+    * {
+      box-sizing: border-box;
+      transition: all 0.3s ease;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #87CEFA, #FFD700);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    /* ===== Welcome Screen ===== */
+    .welcome {
+      text-align: center;
+      color: #fff;
+      animation: fadeIn 1s ease;
+    }
+
+    .welcome h1 {
+      font-family: 'Pacifico', cursive;
+      font-size: 60px;
+      color: #004aad;
+      margin-bottom: 15px;
+      text-shadow: 2px 2px 6px rgba(0,0,0,0.2);
+    }
+
+    .welcome p {
+      font-size: 18px;
+      color: #333;
+      margin-bottom: 30px;
+    }
+
+    .welcome button {
+      background: #FFD700;
+      color: #333;
+      border: none;
+      padding: 14px 30px;
+      border-radius: 25px;
+      font-weight: 600;
+      font-size: 16px;
+      cursor: pointer;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    }
+
+    .welcome button:hover {
+      background: #FFC107;
+      transform: scale(1.05);
+    }
+
+    /* ===== Catatan Page ===== */
+    .app {
+      display: none;
+      width: 90%;
+      max-width: 650px;
+      background: white;
+      border-radius: 20px;
+      padding: 25px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+      animation: fadeIn 0.6s ease;
+    }
+
+    .app h2 {
+      font-family: 'Pacifico', cursive;
+      color: #004aad;
+      text-align: center;
+      margin-top: 0;
+      font-size: 40px;
+    }
+
+    textarea {
+      width: 100%;
+      height: 100px;
+      border: 2px solid #ccc;
+      border-radius: 10px;
+      padding: 12px;
+      font-size: 15px;
+      outline: none;
+      resize: none;
+    }
+
+    textarea:focus {
+      border-color: #0077cc;
+      box-shadow: 0 0 8px rgba(0, 119, 204, 0.3);
+    }
+
+    .buttons {
+      display: flex;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    button.action {
+      flex: 1;
+      border: none;
+      border-radius: 8px;
+      padding: 12px;
+      font-weight: 600;
+      color: white;
+      cursor: pointer;
+    }
+
+    .save { background: #007bff; }
+    .save:hover { background: #0056b3; }
+
+    .clear { background: #6c757d; }
+    .clear:hover { background: #5a6268; }
+
+    #search {
+      margin-top: 15px;
+      width: 100%;
+      padding: 10px;
+      border-radius: 8px;
+      border: 1.5px solid #ddd;
+      font-size: 15px;
+      outline: none;
+    }
+
+    #search:focus {
+      border-color: #0077cc;
+    }
+
+    .note {
+      background: #f0f8ff;
+      border-left: 5px solid #007bff;
+      border-radius: 10px;
+      padding: 12px;
+      margin-top: 10px;
+      position: relative;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+      animation: fadeIn 0.3s ease;
+      white-space: pre-wrap;
+    }
+
+    .delete, .edit {
+      position: absolute;
+      top: 8px;
+      border: none;
+      background: none;
+      font-size: 16px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .delete { right: 10px; color: #dc3545; }
+    .edit { right: 35px; color: #007bff; }
+
+    .timestamp {
+      font-size: 12px;
+      color: #777;
+      margin-top: 5px;
+    }
+
+    .empty {
+      text-align: center;
+      color: #777;
+      margin-top: 20px;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Responsive */
+    @media (max-width: 600px) {
+      .welcome h1 { font-size: 42px; }
+      .app h2 { font-size: 34px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Halaman Welcome -->
+  <div class="welcome" id="welcome">
+    <h1>Catatanku 💙</h1>
+    <p>Selamat datang! Yuk mulai menulis catatan, ide, atau hal penting kamu di sini ✨</p>
+    <button onclick="startApp()">Mulai Sekarang</button>
+  </div>
+
+  <!-- Halaman Catatan -->
+  <div class="app" id="app">
+    <h2>Catatanku</h2>
+
+    <textarea id="note-input" placeholder="Tulis catatanmu di sini..."></textarea>
+    <div class="buttons">
+      <button class="action save" id="save-btn">Simpan</button>
+      <button class="action clear" id="clear-all">Hapus Semua</button>
+    </div>
+    <input type="text" id="search" placeholder="Cari catatan...">
+    <div id="notes-list"></div>
+  </div>
+
+  <script>
+    const welcome = document.getElementById('welcome');
+    const app = document.getElementById('app');
+    const input = document.getElementById('note-input');
+    const saveBtn = document.getElementById('save-btn');
+    const clearAllBtn = document.getElementById('clear-all');
+    const notesList = document.getElementById('notes-list');
+    const searchInput = document.getElementById('search');
+
+    let notes = JSON.parse(localStorage.getItem('notes')) || [];
+
+    function startApp() {
+      welcome.style.display = 'none';
+      app.style.display = 'block';
+    }
+
+    function saveNotes() {
+      localStorage.setItem('notes', JSON.stringify(notes));
+    }
+
+    function formatDate() {
+      const now = new Date();
+      return now.toLocaleString('id-ID', {
+        day: '2-digit', month: 'long', year: 'numeric',
+        hour: '2-digit', minute: '2-digit'
+      });
+    }
+
+    function renderNotes(filter = '') {
+      notesList.innerHTML = '';
+      const filtered = notes.filter(n => n.text.toLowerCase().includes(filter.toLowerCase()));
+
+      if (filtered.length === 0) {
+        notesList.innerHTML = '<p class="empty">Belum ada catatan 📘</p>';
+        return;
+      }
+
+      filtered.forEach((note, i) => {
+        const div = document.createElement('div');
+        div.className = 'note';
+        div.innerHTML = `
+          <button class="edit">✎</button>
+          <button class="delete">&times;</button>
+          <p>${note.text}</p>
+          <div class="timestamp">${note.time}</div>
+        `;
+
+        div.querySelector('.delete').addEventListener('click', () => {
+          notes.splice(i, 1);
+          saveNotes();
+          renderNotes(searchInput.value);
+        });
+
+        div.querySelector('.edit').addEventListener('click', () => {
+          const newText = prompt('Edit catatan:', note.text);
+          if (newText && newText.trim() !== '') {
+            note.text = newText.trim();
+            note.time = formatDate();
+            saveNotes();
+            renderNotes(searchInput.value);
+          }
+        });
+
+        notesList.appendChild(div);
+      });
+    }
+
+    saveBtn.addEventListener('click', () => {
+      const text = input.value.trim();
+      if (text !== '') {
+        notes.push({ text, time: formatDate() });
+        saveNotes();
+        renderNotes(searchInput.value);
+        input.value = '';
+      }
+    });
+
+    clearAllBtn.addEventListener('click', () => {
+      if (confirm('Yakin mau hapus semua catatan?')) {
+        notes = [];
+        saveNotes();
+        renderNotes(searchInput.value);
+      }
+    });
+
+    searchInput.addEventListener('input', e => renderNotes(e.target.value));
+
+    renderNotes();
+  </script>
+</body>
+</html>
